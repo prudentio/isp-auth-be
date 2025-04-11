@@ -1,5 +1,3 @@
-# kukar-geoforom-dashboard
+### Running Application
 
-Backend for Kukar Geoform Dashboard
-
-# kukar-geoforom-dashboard
+fastapi dev app/main.py
