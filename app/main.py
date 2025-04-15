@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.infrastructure.config import settings
-from app.models import user
 import uvicorn
 from app.api.routers import api_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions import CustomHTTPException
 from app.schemas.response import ErrorResponse
+from app.middleware.jwt_auth import JWTAuthMiddleware
 
 app = FastAPI(title="Kukar Geoform Dashboard Backend")  
 
@@ -19,6 +19,8 @@ app.add_middleware(
     allow_methods=["*"],  
     allow_headers=["*"],
 )
+
+app.add_middleware(JWTAuthMiddleware)
 
 @app.exception_handler(CustomHTTPException)
 async def custom_http_exception_handler(request: Request, exc: CustomHTTPException):

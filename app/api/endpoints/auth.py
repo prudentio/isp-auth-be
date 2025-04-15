@@ -24,7 +24,10 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
     access_token_expires = datetime.now() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token_expires_timestamp = int(access_token_expires.timestamp())
     
-    access_token = create_access_token(data={"username": user.username}, expires_at=access_token_expires_timestamp)
+    access_token = create_access_token(
+        data={"username": user.username, "id": user.id}, 
+        expires_at=access_token_expires_timestamp
+    )
 
     return SuccessResponse(
         status_code=status.HTTP_200_OK,
@@ -34,5 +37,3 @@ async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
             expires_in=access_token_expires_timestamp
     )
 )
-
-
