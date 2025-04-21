@@ -1,9 +1,4 @@
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends, status
-from app.exceptions import CustomHTTPException
-from app.infrastructure.config import settings
-from jose import JWTError, jwt
 from app.models.user_region import UserRegions
 from sqlalchemy import select
 

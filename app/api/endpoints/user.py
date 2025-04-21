@@ -5,7 +5,6 @@ from app.exceptions import CustomHTTPException
 from app.schemas.user import UserInfoResponse
 from app.infrastructure.db.session import get_db
 from app.services.user import get_user_regions_by_user_id
-from app.schemas.response import SuccessResponse
 
 router = APIRouter()
 
