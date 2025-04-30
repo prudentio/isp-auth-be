@@ -3,13 +3,13 @@ from app.schemas.response import SuccessResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exceptions import CustomHTTPException
 from app.schemas.user import UserInfoResponse
-from app.infrastructure.db.session import get_db
+from app.infrastructure.db.session import get_db_dashboard
 from app.services.user import get_user_regions_by_user_id
 
 router = APIRouter()
 
 @router.get("", response_model=SuccessResponse[UserInfoResponse])
-async def get_user_info(request: Request, db: AsyncSession = Depends(get_db)):
+async def get_user_info(request: Request, db: AsyncSession = Depends(get_db_dashboard)):
     user_id = request.state.user_id
 
     user_region_ids = await get_user_regions_by_user_id(db, user_id)

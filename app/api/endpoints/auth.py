@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from app.schemas.auth import LoginRequest, LoginResponseData
-from app.schemas.response import SuccessResponse, ErrorResponse
-from app.infrastructure.db.session import get_db
+from app.schemas.response import SuccessResponse
+from app.infrastructure.db.session import get_db_dashboard
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.services.auth import verify_user
 from app.infrastructure.security import verify_password, create_access_token
@@ -12,7 +12,7 @@ from app.exceptions import CustomHTTPException
 router = APIRouter()
 
 @router.post("/access-token", response_model=SuccessResponse[LoginResponseData])
-async def login(request: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(request: LoginRequest, db: AsyncSession = Depends(get_db_dashboard)):
     user = await verify_user(db, request.username)
     
     if not user or not verify_password(request.password, user.password):

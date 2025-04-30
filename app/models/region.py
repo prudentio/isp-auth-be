@@ -12,3 +12,4 @@ class Regions(Base):
     kd_kel=Column(String, nullable=True)
     kd_rw=Column(String, nullable=True)
     kd_rt=Column(String, nullable=True)
+    tag_id = Column(String,nullable=True)

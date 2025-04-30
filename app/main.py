@@ -7,8 +7,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions import CustomHTTPException
 from app.schemas.response import ErrorResponse
 from app.middleware.jwt_auth import JWTAuthMiddleware
+from app.etl.tasks.region_aggregates.scheduler import EtlJob
+from contextlib import asynccontextmanager
 
-app = FastAPI(title="Kukar Geoform Dashboard Backend")  
+etl_job = EtlJob()
+
+@asynccontextmanager
+async def start_shutdown_lifespan(app: FastAPI): 
+    # Startup
+    await etl_job.start()
+
+    # Shutdown
+    yield
+    await etl_job.stop()
+
+app = FastAPI(title="Kukar Geoform Dashboard Backend", lifespan= start_shutdown_lifespan)  
 
 app.include_router(api_router)
 
