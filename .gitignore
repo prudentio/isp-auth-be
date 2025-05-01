@@ -12,3 +12,5 @@ alembic/versions/__pycache__/
 # SQLite DB
 *.sqlite
 *.db
+*.sqlite-shm
+*.sqlite-wal

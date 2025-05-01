@@ -1,19 +1,17 @@
-from app.etl.tasks.region_aggregates.extract import extract_tag_id
-from app.etl.tasks.region_aggregates.transform import transform_tag_id
-from app.etl.tasks.region_aggregates.load import insert_aggregated_data, update_etl_tracking
+from app.etl.tasks.region_aggregates.extract import extract_region_data
+from app.etl.tasks.region_aggregates.transform import transform_region_data
+from app.etl.tasks.region_aggregates.load import load_aggregated_region_data
+from app.etl.load import update_etl_tracking
 from app.infrastructure.db.session import AsyncSessionGeoform, AsyncSessionDashboard
-import pytz
+from app.models.region_aggregate import RegionAggregates
 
-utc = pytz.UTC
-indonesia_timezone = pytz.timezone('Asia/Jakarta')
-
-async def run_etl():
+async def run_region_aggregates_etl():
     async with AsyncSessionGeoform() as geoform_session, AsyncSessionDashboard() as dashboard_session:
-        extracted_data = await extract_tag_id(geoform_session, dashboard_session)
+        extracted_data = await extract_region_data(geoform_session, dashboard_session)
 
         if extracted_data:
-            transformed_data = await transform_tag_id(extracted_data, dashboard_session)
-            await insert_aggregated_data(transformed_data, dashboard_session)
+            transformed_data = await transform_region_data(extracted_data, dashboard_session)
+            await load_aggregated_region_data(transformed_data, dashboard_session, RegionAggregates)
 
             start_processed_data = extracted_data[0]
             start_processed_at = start_processed_data.updated_at

@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions import CustomHTTPException
 from app.schemas.response import ErrorResponse
 from app.middleware.jwt_auth import JWTAuthMiddleware
-from app.etl.tasks.region_aggregates.scheduler import EtlJob
+from app.etl.scheduler import EtlJob
 from contextlib import asynccontextmanager
 
 etl_job = EtlJob()

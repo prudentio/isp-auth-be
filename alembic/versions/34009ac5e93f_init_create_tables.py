@@ -77,6 +77,16 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("start_processed_at", "end_processed_at")
     )
 
+    op.create_table(
+        'surveyor_aggregates',
+        sa.Column('id', sa.Integer(), primary_key=True, nullable=False, autoincrement=True),
+        sa.Column('date', sa.Date, nullable=False),
+        sa.Column('surveyor_id', sa.Text, nullable=False),
+        sa.Column('surveyor_name', sa.Text, nullable=False),
+        sa.Column('rt_id', sa.Text, sa.ForeignKey("regions.id",  ondelete="CASCADE"), nullable=False), 
+        sa.Column('total_data', sa.Integer, nullable=False)
+    )
+
 def downgrade() -> None:
     op.drop_table('users')
 
@@ -88,3 +98,4 @@ def downgrade() -> None:
 
     op.drop_table('etl_tracker')
 
+    op.drop_table('surveyor_aggregates')
