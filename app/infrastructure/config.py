@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = ["*"]
     RUN_MODE: str = "PRODUCTION"
     ETL_SCHEDULE_HOUR: int = 2
+    EXCEL_EXPORTS_DIR_PATH : Path
 
     class Config:
         env_file = ".env"

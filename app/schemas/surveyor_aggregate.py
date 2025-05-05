@@ -1,7 +1,9 @@
+from typing import Optional
 from app.schemas.response import CamelModel
+from datetime import date
 
 class SurveyorAggregateResponseData(CamelModel):
-    surveyor_name: str
+    date: Optional[date]
     surveyor_id: str
-    rt_id: str
+    surveyor_name: str
     total_data: int

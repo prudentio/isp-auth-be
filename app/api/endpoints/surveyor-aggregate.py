@@ -12,12 +12,23 @@ router = APIRouter()
 @router.get("", response_model=SuccessResponse)
 async def get_surveyor_aggregate(
     db: AsyncSession = Depends(get_db_dashboard),
+    kec_id: Optional[List[str]] = Query(None),
+    kel_id: Optional[List[str]] = Query(None),
+    rw_id: Optional[List[str]] = Query(None),
     rt_id: Optional[List[str]] = Query(None),
     start_date: Optional[date] = None,
     end_date: Optional[date] = None
     ):
     
-    data = await get_aggregated_surveyor_data(db, rt_id, start_date, end_date)
+    data = await get_aggregated_surveyor_data(
+                        db, 
+                        kec_id,
+                        kel_id,
+                        rw_id,
+                        rt_id, 
+                        start_date, 
+                        end_date
+                    )
 
     if not data:
         raise CustomHTTPException(

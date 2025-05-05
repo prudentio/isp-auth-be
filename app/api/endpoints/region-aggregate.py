@@ -3,7 +3,7 @@ from app.infrastructure.db.session import get_db_dashboard
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from datetime import date
-from app.services.region_aggregate import get_region_aggregate_data
+from app.services.region_aggregate import get_aggregated_region_data
 from app.schemas.response import SuccessResponse
 from app.exceptions import CustomHTTPException
 
@@ -19,7 +19,7 @@ async def get_region_aggregate(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None
 ):
-    data = await get_region_aggregate_data(
+    data = await get_aggregated_region_data(
         db=db,
         kec_id=kec_id,
         kel_id=kel_id,

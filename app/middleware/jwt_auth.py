@@ -6,7 +6,7 @@ from app.exceptions import CustomHTTPException
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        if request.url.path in ["/api/auth/access-token", "/docs", "/openapi.json"]:
+        if request.url.path in ["/api/auth/access-token", "/docs", "/openapi.json", "/api/export-excel"]:
             return await call_next(request)
         
         auth_header = request.headers.get("Authorization")

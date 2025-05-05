@@ -9,6 +9,7 @@ from app.schemas.response import ErrorResponse
 from app.middleware.jwt_auth import JWTAuthMiddleware
 from app.etl.scheduler import EtlJob
 from contextlib import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
 
 etl_job = EtlJob()
 
@@ -25,6 +26,8 @@ app = FastAPI(title="Kukar Geoform Dashboard Backend", lifespan= start_shutdown_
 
 app.include_router(api_router)
 
+app.mount("/excel-exports", StaticFiles(directory=settings.EXCEL_EXPORTS_DIR_PATH), name="excel-exports")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,  
@@ -36,6 +39,7 @@ app.add_middleware(
 app.add_middleware(JWTAuthMiddleware)
 
 @app.exception_handler(CustomHTTPException)
+
 async def custom_http_exception_handler(request: Request, exc: CustomHTTPException):
     return JSONResponse(
         status_code=exc.status_code,
