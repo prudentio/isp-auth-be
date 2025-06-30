@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, Query, status
 from app.infrastructure.db.session import get_db_dashboard
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
+from typing import Annotated, List
 from datetime import date
+from app.middleware.jwt_auth import get_current_user
 from app.services.region_aggregate import get_aggregated_region_data
 from app.schemas.response import SuccessResponse
 from app.exceptions import CustomHTTPException
@@ -11,13 +12,14 @@ router = APIRouter()
 
 @router.get("", response_model=SuccessResponse)
 async def get_region_aggregate(
+    user_id: Annotated[str, Depends(get_current_user)], 
     db: AsyncSession = Depends(get_db_dashboard),
-    kec_id: Optional[List[str]] = Query(None),
-    kel_id: Optional[List[str]] = Query(None),
-    rw_id: Optional[List[str]] = Query(None),
-    rt_id: Optional[List[str]] = Query(None),
-    start_date: Optional[date] = None,
-    end_date: Optional[date] = None
+    kec_id: Annotated[List[str] | None, Query()] = None,
+    kel_id: Annotated[List[str] | None, Query()] = None,
+    rw_id: Annotated[List[str] | None, Query()] = None,
+    rt_id: Annotated[List[str] | None, Query()] = None,
+    start_date: Annotated[date | None, Query()] = None,
+    end_date: Annotated[date | None, Query()] = None
 ):
     data = await get_aggregated_region_data(
         db=db,

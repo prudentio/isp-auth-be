@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends, Query, status
 from app.infrastructure.db.session import get_db_dashboard
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
+from typing import Annotated, List
 from datetime import date
+from app.middleware.jwt_auth import get_current_user
 from app.services.region_aggregate import get_aggregated_region_data
 from app.services.surveyor_aggregate import get_aggregated_surveyor_data
 from app.exceptions import CustomHTTPException
 import pandas as pd
 from app.infrastructure.config import settings
-from fastapi.responses import StreamingResponse
 from app.services.cache_manager import CacheManager
 from datetime import datetime
 from app.services.export_excel import transform_dict_to_df, create_excel_file, return_excel_file
@@ -18,13 +18,14 @@ router = APIRouter()
 
 @router.get("")
 async def export_excel(
+    user_id: Annotated[str, Depends(get_current_user)], 
     db: AsyncSession = Depends(get_db_dashboard),
-    kec_id: Optional[List[str]] = Query(None),
-    kel_id: Optional[List[str]] = Query(None),
-    rw_id: Optional[List[str]] = Query(None),
-    rt_id: Optional[List[str]] = Query(None),
-    start_date: Optional[date] = None,
-    end_date: Optional[date] = None
+    kec_id: Annotated[List[str] | None, Query()] = None,
+    kel_id: Annotated[List[str] | None, Query()] = None,
+    rw_id: Annotated[List[str] | None, Query()] = None,
+    rt_id: Annotated[List[str] | None, Query()] = None,
+    start_date: Annotated[date | None, Query()] = None,
+    end_date: Annotated[date | None, Query()] = None
 ):
     if not start_date or not end_date:
         today = date.today()

@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, status, Request
+from typing import Annotated
+from fastapi import APIRouter, Depends, status
+from app.middleware.jwt_auth import get_current_user
 from app.schemas.response import SuccessResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exceptions import CustomHTTPException
@@ -9,9 +11,10 @@ from app.services.user import get_user_regions_by_user_id
 router = APIRouter()
 
 @router.get("", response_model=SuccessResponse[UserInfoResponse])
-async def get_user_info(request: Request, db: AsyncSession = Depends(get_db_dashboard)):
-    user_id = request.state.user_id
-
+async def get_user_info(
+    user_id: Annotated[str, Depends(get_current_user)], 
+    db: AsyncSession = Depends(get_db_dashboard)
+):
     user_region_ids = await get_user_regions_by_user_id(db, user_id)
 
     if not user_region_ids:

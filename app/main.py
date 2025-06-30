@@ -6,10 +6,10 @@ from app.api.routers import api_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions import CustomHTTPException
 from app.schemas.response import ErrorResponse
-from app.middleware.jwt_auth import JWTAuthMiddleware
 from app.etl.scheduler import EtlJob
 from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 etl_job = EtlJob()
 
@@ -36,8 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(JWTAuthMiddleware)
-
 @app.exception_handler(CustomHTTPException)
 
 async def custom_http_exception_handler(request: Request, exc: CustomHTTPException):
@@ -46,6 +44,16 @@ async def custom_http_exception_handler(request: Request, exc: CustomHTTPExcepti
         content=ErrorResponse(
             status_code=exc.status_code,
             message=exc.message
+        ).model_dump(by_alias=True)
+    )
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=ErrorResponse(
+            status_code=exc.status_code,
+            message=exc.detail
         ).model_dump(by_alias=True)
     )
 
