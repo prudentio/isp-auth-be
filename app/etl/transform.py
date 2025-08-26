@@ -1,3 +1,4 @@
+from dataclasses import asdict, dataclass
 from typing import List, Optional, Tuple
 from datetime import datetime, date
 from uuid import UUID
@@ -6,6 +7,7 @@ from app.models.region import Regions
 from sqlalchemy import select
 import pandas as pd
 from app.models.geoform.user_account import UserAccount
+from app.schemas.etl import AggregatedData, ExtractedData, TypeAggregateEnum
 
 async def transform_date(updated_at: datetime):
     transformed_date = updated_at.date()
@@ -27,37 +29,59 @@ async def transform_surveyor_id(surveyor_id: str, db_geoform: AsyncSession):
     surveyor_name = result.scalar_one_or_none()
     return surveyor_name
 
+async def transform_total_family_card(family_cards:List[str]):
+    return len(family_cards)
+
 async def transform_data(
-        data: List[Tuple[datetime, List[UUID], Optional[UUID]]], 
+        data: List[ExtractedData], 
         db_dashboard: AsyncSession, 
-        db_geoform: Optional[AsyncSession] = None
+        db_geoform: AsyncSession
         ):
-    transformed_data = []
+    transformed_data: List[AggregatedData] = []
 
     for entry in data:
-        #Transform Date
-        updated_at = entry[0]
-        transformed_date = await transform_date(updated_at)
+        # Transform Date
+        transformed_date = await transform_date(entry.date)
 
-        #Transform Tag Id
-        tag_ids = entry[1]
-        region_id = await transform_tag_id(tag_ids, db_dashboard)
+        # Transform Tag Id
+        region_id = await transform_tag_id(entry.tag_id, db_dashboard)
 
-        #Transform Surveyor Id
-        surveyor_id = entry[2] if len(entry)> 2 else None
-        if surveyor_id:
-            surveyor_name = await transform_surveyor_id(surveyor_id, db_geoform)
-            transformed_data.append((transformed_date, region_id, str(surveyor_id), surveyor_name))
-        else:
-            transformed_data.append((transformed_date, region_id))
+        # Transform Surveyor Id
+        surveyor_id = entry.surveyor_id
+        surveyor_name = await transform_surveyor_id(surveyor_id, db_geoform)
+
+        # Transform Total Family Card
+        total_fc = await transform_total_family_card(entry.family_cards)
+
+        transformed_data.append(
+            AggregatedData(
+                date=transformed_date,
+                region_id=region_id,
+                surveyor_id=str(surveyor_id),
+                surveyor_name=surveyor_name,
+                total_data=total_fc
+            )
+        )
 
     return transformed_data
 
-async def aggregate_data(
-        data: List[Tuple[date, str, Optional[str], Optional[str]]], 
-        group_columns: List[str]
-    ):
-    df = pd.DataFrame(data, columns = group_columns)
-    grouped = df.groupby(group_columns).size().reset_index(name='total_data')
+list_column_names = {
+    TypeAggregateEnum.REGION: ['date', 'region_id'], 
+    TypeAggregateEnum.SURVEYOR: ['date', 'region_id', 'surveyor_id','surveyor_name']
+}
 
+
+
+async def aggregate_data(
+        data: List[AggregatedData], 
+        type_aggregate: TypeAggregateEnum
+    ) -> pd.DataFrame:
+    group_columns = list_column_names[type_aggregate]
+    
+    if not data:
+        return pd.DataFrame(columns=group_columns + ['total_data'])
+    
+    df = pd.DataFrame([asdict(d) for d in data])
+    grouped = df.groupby(group_columns, as_index=False)['total_data'].sum()
+    
     return grouped

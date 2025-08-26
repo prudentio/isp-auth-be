@@ -1,7 +1,6 @@
 import asyncio
 from aiojobs import create_scheduler
-from app.etl.tasks.region_aggregates.etl_runner import run_region_aggregates_etl
-from app.etl.tasks.surveyor_aggregates.etl_runner import run_surveyor_aggregates_etl
+from app.etl.etl_runner import run_etl
 from app.infrastructure.config import settings
 from app.infrastructure.db.session import engine_geoform, engine_dashboard
 import aiohttp
@@ -64,5 +63,4 @@ class EtlJob:
 
             delay = (next_run - now).total_seconds()
             await asyncio.sleep(delay)
-            await run_surveyor_aggregates_etl()
-            await run_region_aggregates_etl()
+            await run_etl()

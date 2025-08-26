@@ -1,7 +1,9 @@
 import pandas as pd
+from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.etl_tracker import EtlTracker
 from datetime import datetime
+from app.models.family_card import FamilyCards
 
 async def insert_aggregated_data(data: pd.DataFrame, db_dashboard: AsyncSession, model_class):
     for _, row in data.iterrows():
@@ -29,4 +31,13 @@ async def update_etl_tracking(start_processed_at : datetime, end_processed_at: d
     )
 
     db.add(tracking)
+    await db.commit()
+
+async def update_family_card_data(db: AsyncSession, data: set[str]):
+    if not data:
+        return 
+
+    kk_to_insert = [{"id": kk} for kk in data]
+
+    await db.execute(insert(FamilyCards).prefix_with("OR IGNORE"), kk_to_insert)
     await db.commit()
