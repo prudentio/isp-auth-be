@@ -53,6 +53,7 @@ async def extract_data(db_geoform:AsyncSession, db_dashboard: AsyncSession):
     result = await db_geoform.execute(
         select(ProjectData.data, ProjectData.created_at, ProjectData.tag_id, ProjectData.created_by)
         .where(ProjectData.created_at > last_processed_at)
+        .order_by(ProjectData.created_at.asc())
         )
 
     rows = result.all()
