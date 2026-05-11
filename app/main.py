@@ -6,27 +6,11 @@ from app.api.routers import api_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.exceptions import CustomHTTPException
 from app.schemas.response import ErrorResponse
-from app.etl.scheduler import EtlJob
-from contextlib import asynccontextmanager
-from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-etl_job = EtlJob()
-
-@asynccontextmanager
-async def start_shutdown_lifespan(app: FastAPI): 
-    # Startup
-    await etl_job.start()
-
-    # Shutdown
-    yield
-    await etl_job.stop()
-
-app = FastAPI(title="Kukar Geoform Dashboard Backend", lifespan= start_shutdown_lifespan)  
+app = FastAPI(title="Auth Service")  
 
 app.include_router(api_router)
-
-app.mount("/excel-exports", StaticFiles(directory=settings.EXCEL_EXPORTS_DIR_PATH), name="excel-exports")
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,7 +21,6 @@ app.add_middleware(
 )
 
 @app.exception_handler(CustomHTTPException)
-
 async def custom_http_exception_handler(request: Request, exc: CustomHTTPException):
     return JSONResponse(
         status_code=exc.status_code,
