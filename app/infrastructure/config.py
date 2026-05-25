@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = ["*"]
     RUN_MODE: str = "PRODUCTION"
     RABBITMQ_URL: str=""
+    CLIENT_ID:str=""
+    CLIENT_SECRET:str=""
 
     class Config:
         env_file = ".env"
